@@ -226,7 +226,7 @@ try {
                 codigo_vendedor VARCHAR(10) DEFAULT NULL,
                 nombre_vendedor TINYINT(100) DEFAULT NULL,
                 numero_cajero VARCHAR(3) DEFAULT NULL,
-                registro_fiscal VARCHAR(12) DEFAULT NULL,
+                registro_fiscal VARCHAR(20) DEFAULT NULL,
                 razon_social VARCHAR(255) DEFAULT NULL,
                 direccion_fiscal VARCHAR(255) DEFAULT NULL,
                 pais VARCHAR(10) DEFAULT NULL,
