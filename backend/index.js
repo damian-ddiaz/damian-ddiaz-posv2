@@ -21,18 +21,20 @@ console.log('Iniciando servidor...');
 
 // Conexión a la BD FACTURACION
 const dbf = mysql.createConnection({
-    host: process.env.DBF_HOST,
-    user: process.env.DBF_USER,
-    password: process.env.DBF_PASSWORD,
-    database: process.env.DBF_NAME
+    host: process.env['CONN-FACTURACION-HOST'],
+    port: process.env['CONN-FACTURACION-PORT'],
+    user: process.env['CONN-FACTURACION-USER'],
+    password: process.env['CONN-FACTURACION-PASS'],
+    database: process.env['CONN-FACTURACION-DB']
 });
 
 // Conexión a la BD OTROS (Clientes, Productos)
 const dbo = mysql.createConnection({
-    host: process.env.DBO_HOST,
-    user: process.env.DBO_USER,
-    password: process.env.DBO_PASSWORD,
-    database: process.env.DBO_NAME
+    host: process.env['CONN-EXAMPLE-HOST'],
+    port: process.env['CONN-EXAMPLE-PORT'],
+    user: process.env['CONN-EXAMPLE-USER'],
+    password: process.env['CONN-EXAMPLE-PASS'],
+    database: process.env['CONN-EXAMPLE-DB']
 });
 
 const esquema_new = 'facturacion'; // Nombre de la Bsase de Datos
@@ -51,7 +53,94 @@ app.use((req, res, next) => {
     console.log(`➡️  ${req.method} ${req.url}`);
     next();
 });
-
+// Obteniendo Raiz del proyecto
+app.get('/', (req, res) => {
+    const info = {
+        version: '1.0.0',
+        descripcion: 'API para gestión de facturación, clientes y productos. Permite consultar ventas, facturas, clientes, productos y registrar documentos con sus detalles.'
+    };
+    console.log('📥 Consultando la raíz...');
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>API Facturación - Damian Diaz</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    background: #f4f6fb;
+                    color: #222;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 60px auto;
+                    background: #fff;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+                    padding: 32px 40px;
+                    text-align: center;
+                }
+                h1 {
+                    color: #2d7be5;
+                    margin-bottom: 10px;
+                }
+                .desc {
+                    color: #555;
+                    margin-bottom: 24px;
+                }
+                .info {
+                    background: #f0f4fa;
+                    border-radius: 8px;
+                    padding: 16px;
+                    margin-bottom: 20px;
+                    display: inline-block;
+                }
+                .endpoints {
+                    text-align: left;
+                    margin-top: 30px;
+                }
+                .endpoints ul {
+                    padding-left: 20px;
+                }
+                .endpoints li {
+                    margin-bottom: 8px;
+                }
+                .footer {
+                    margin-top: 32px;
+                    color: #aaa;
+                    font-size: 0.95em;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>API Facturación</h1>
+                <div class="desc">${info.descripcion}</div>
+                <div class="info">
+                    <strong>Versión:</strong> ${info.version}
+                </div>
+                <div class="endpoints">
+                    <h3>Endpoints principales:</h3>
+                    <ul>
+                        <li><b>GET</b> <code>/facturacion</code> - Total de ventas al día</li>
+                        <li><b>GET</b> <code>/conteo</code> - Total de facturas emitidas</li>
+                        <li><b>GET</b> <code>/ultimas_facturas</code> - Últimas 5 facturas</li>
+                        <li><b>GET</b> <code>/buscar_clientes</code> - Lista de clientes</li>
+                        <li><b>GET</b> <code>/buscar_productos</code> - Lista de productos</li>
+                        <li><b>POST</b> <code>/documentos</code> - Registrar documento y detalles</li>
+                    </ul>
+                </div>
+                <div class="footer">
+                    Damian Diaz &copy; ${new Date().getFullYear()}
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+});
 
 // Ruta: Obtener todos los documentos
 app.get('/facturacion', (req, res) => { // Total de Ventas al Dia
@@ -142,46 +231,6 @@ app.get('/buscar_productos', (req, res) => { // Buscando Productos
 });
 
 // ENDPOINT PARA INSERCCIONES Damian Diaz 30-05-2025
-/*
-app.post('/api/documentos', (req, res) => {
-    const {
-        tipo_documento,
-        numero_documento,
-        total_general,
-        fecha_emision,
-        razon_social,
-        usuario,
-        empresa,
-        sucursal,
-        status
-        // Agrega aquí otros campos requeridos
-    } = req.body;
-
-    // Validaciones básicas
-    if (!tipo_documento || !numero_documento || !total_general || !fecha_emision || !razon_social || !usuario || !empresa || !sucursal || !status) {
-        return res.status(400).json({ error: 'Faltan campos obligatorios' });
-    }
-
-    const query = `
-        INSERT INTO ${esquema_new}.documentos
-        (tipo_documento, numero_documento, total_general, fecha_emision, razon_social, usuario, empresa, sucursal, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    dbf.query(
-        query,
-        [tipo_documento, numero_documento, total_general, fecha_emision, razon_social, usuario, empresa, sucursal, status],
-        (err, result) => {
-            if (err) {
-                console.error('❌ Error insertando documento:', err.message);
-                return res.status(500).json({ error: 'Error insertando documento' });
-            }
-            res.json({ success: true, id: result.insertId });
-        }
-    );
-});
-*/
-
 app.post('/documentos', (req, res) => {
     const documentoData = req.body.documento;
     const detalles = req.body.detalles;
