@@ -606,4 +606,3 @@ try {
 } catch (mysqli_sql_exception $e) {
     die("❌ Error de conexión o SQL: " . $e->getMessage());
 }
-/*?>*/
