@@ -245,7 +245,7 @@ try {
             "MODIFY COLUMN `codigo`                         VARCHAR(12) NOT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `descripcion`                    LONGTEXT NOT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `codigo_almacen`                 VARCHAR(200) DEFAULT NULL COLLATE utf8mb4_general_ci",
-            "MODIFY COLUMN `cantidad`                       DECIMAL(11,2) NOT NULL",
+            "MODIFY COLUMN `cantidad`                       $var_decimal NOT NULL",
             "MODIFY COLUMN `tipo_precio`                    VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `tipo_unidad`                    VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `precio_unitario`                $var_decimal NOT NULL",
@@ -518,14 +518,14 @@ try {
             "MODIFY COLUMN `id_ventas_devoluciones_resumen` INT(11) NOT NULL",
             "MODIFY COLUMN `codigo_producto`                VARCHAR(20) NOT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `codigo_almacen`                 VARCHAR(20) NOT NULL COLLATE utf8mb4_general_ci",
-            "MODIFY COLUMN `cantidad`                       DECIMAL(11,2) NOT NULL",
-            "MODIFY COLUMN `cantidad_venta`                 DECIMAL(11,2) NOT NULL",
+            "MODIFY COLUMN `cantidad`                       $var_decimal NOT NULL",
+            "MODIFY COLUMN `cantidad_venta`                 $var_decimal NOT NULL",
             "MODIFY COLUMN `tipo_unidad`                    VARCHAR(20) NOT NULL COLLATE utf8mb4_general_ci",
-            "MODIFY COLUMN `precio_unitario`                DECIMAL(11,2) NOT NULL",
+            "MODIFY COLUMN `precio_unitario`                $var_decimal NOT NULL",
             "MODIFY COLUMN `porc_iva`                       VARCHAR(11) NOT NULL COLLATE utf8mb4_general_ci",
-            "MODIFY COLUMN `iva`                            DECIMAL(11,2) NOT NULL",
-            "MODIFY COLUMN `sub_total`                      DECIMAL(11,2) NOT NULL",
-            "MODIFY COLUMN `total_renglon`                  DECIMAL(11,2) NOT NULL",
+            "MODIFY COLUMN `iva`                            $var_decimal NOT NULL",
+            "MODIFY COLUMN `sub_total`                      $var_decimal NOT NULL",
+            "MODIFY COLUMN `total_renglon`                  $var_decimal NOT NULL",
             "MODIFY COLUMN `usuario`                        VARCHAR(200) NOT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `empresa`                        VARCHAR(20) NOT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `sucursal`                       VARCHAR(20) NOT NULL COLLATE utf8mb4_general_ci",
@@ -926,7 +926,7 @@ try {
             "MODIFY COLUMN `iva`                            $var_decimal DEFAULT NULL",
             "MODIFY COLUMN `total_factura`                  $var_decimal DEFAULT NULL",
             "MODIFY COLUMN `exento`                         $var_decimal DEFAULT NULL",
-            "MODIFY COLUMN `exento_bs`                      DECIMAL(25,4) DEFAULT NULL",
+            "MODIFY COLUMN `exento_bs`                      $var_decimal DEFAULT NULL",
             "MODIFY COLUMN `empresa`                        VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `sucursal`                       VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_general_ci",
             "MODIFY COLUMN `ciudad_servicio`                VARCHAR(255) DEFAULT NULL COLLATE utf8mb4_general_ci",
@@ -945,6 +945,175 @@ try {
         echo '';
     }
 
+  // --- RepLibroVentasCiudadesResumen ---
+   $result = $conn->query("SHOW TABLES LIKE 'RepLibroVentasCiudadesResumen'");
+    if ($result->num_rows == 0) {
+        echo "🆕 Tabla 'RepLibroVentasCiudadesResumen' no existe. Creando...";
+        echo '';
+        $create_RepLibroVentasCiudadesResumen_sql = "
+                CREATE TABLE `RepLibroVentasCiudadesResumen` (
+            `fecha_emision`                                 date DEFAULT NULL,
+            `ciudad_cliente`                                VARCHAR(20) DEFAULT NULL,
+            `total_fact_bsd`                                $var_decimal DEFAULT NULL,
+            `sub_total_bs`                                  $var_decimal DEFAULT NULL,
+            `iva_bs`                                        $var_decimal DEFAULT NULL,
+            `sub_total`                                     $var_decimal DEFAULT NULL,
+            `iva`                                           $var_decimal DEFAULT NULL,
+            `total_factura`                                 $var_decimal DEFAULT NULL,
+            `exento`                                        $var_decimal DEFAULT NULL,
+            `exento_bs`                                     decimal(25,4) DEFAULT NULL,
+            `empresa`                                       VARCHAR(20) DEFAULT NULL,
+            `sucursal`                                      VARCHAR(20) DEFAULT NULL,
+            `corr_fiscal`                                   VARCHAR(11) DEFAULT NULL,
+            `ciudad_servicio`                               VARCHAR(20) DEFAULT NULL,
+            `estado`                                        VARCHAR(20) DEFAULT NULL,
+            `fact_fiscal`                                   VARCHAR(20) DEFAULT NULL,
+            `status`                                        VARCHAR(50) DEFAULT NULL,
+            `tasa_cambio`                                  $var_decimal DEFAULT NULL,
+            `id`                                            INT(11) NOT NULL AUTO_INCREMENT,
+            PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=462917 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
+
+        $conn->query($create_RepLibroVentasCiudadesResumen_sql);
+        echo "✅ Tabla 'RepLibroVentasCiudadesResumen' creada correctamente....";
+        echo '';
+    } else {
+        $alter_RepLibroVentasCiudadesResumen_sqls = [
+            // --- Reconfirmación de definiciones para las columnas de la tabla YourTableName ---
+            "MODIFY COLUMN `fecha_emision`                  DATE DEFAULT NULL",
+            "MODIFY COLUMN `ciudad_cliente`                 VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `total_fact_bsd`                 $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `sub_total_bs`                   $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `iva_bs`                         $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `sub_total`                      $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `iva`                            $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `total_factura`                  $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `exento`                         $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `exento_bs`                      $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `empresa`                        VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `sucursal`                       VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `corr_fiscal`                    VARCHAR(11) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `ciudad_servicio`                VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `estado`                         VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `fact_fiscal`                    VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `status`                         VARCHAR(50) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `tasa_cambio`                    $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `id`                             INT(11) NOT NULL AUTO_INCREMENT"
+        ];
+
+        foreach ($alter_RepLibroVentasCiudadesResumen_sqls as $sql) {
+            $conn->query("ALTER TABLE RepLibroVentasCiudadesResumen $sql");
+        }
+
+        echo "✅ Estructura de la tabla 'RepLibroVentasCiudadesResumen' actualizada exitosamente...";
+        echo '';
+    }
+
+   // --- RepLibroVentasResumen ---
+   $result = $conn->query("SHOW TABLES LIKE 'RepLibroVentasResumen'");
+    if ($result->num_rows == 0) {
+        echo "🆕 Tabla 'RepLibroVentasResumen' no existe. Creando...";
+        echo '';
+        $create_RepLibroVentasResumen_sql = "
+                CREATE TABLE `RepLibroVentasResumen` (
+            `tipo_doc`                                      VARCHAR(3) DEFAULT NULL,
+            `id_ventas`                                     INT(11) DEFAULT NULL,
+            `fecha_emision`                                 date DEFAULT NULL,
+            `nro_factura`                                   VARCHAR(11) DEFAULT NULL,
+            `nro_control`                                   VARCHAR(10) DEFAULT NULL,
+            `cod_cliente`                                   VARCHAR(40) DEFAULT NULL,
+            `nombre_cliente`                                VARCHAR(200) DEFAULT NULL,
+            `no_no_debito`                                  VARCHAR(1) DEFAULT NULL,
+            `no_no_credito`                                 VARCHAR(10) DEFAULT NULL,
+            `no_fac_afec`                                   VARCHAR(11) DEFAULT NULL,
+            `ventas_c_iva`                                  $var_decimal DEFAULT NULL,
+            `ventas_no_gra`                                 VARCHAR(1) DEFAULT NULL,
+            `co_base_imponible_bs`                          $var_decimal DEFAULT NULL,
+            `co_tasa_iva_bs`                                $var_decimal DEFAULT NULL,
+            `co_impuesto_bs`                                $var_decimal DEFAULT NULL,
+            `nco_base_imponible_bs`                         $var_decimal DEFAULT NULL,
+            `nco_tasa_iva_bs`                               $var_decimal DEFAULT NULL,
+            `nco_impuesto_bs`                               $var_decimal DEFAULT NULL,
+            `co_base_imponible`                             $var_decimal DEFAULT NULL,
+            `co_impuesto`                                   $var_decimal DEFAULT NULL,
+            `nco_base_imponible`                            $var_decimal DEFAULT NULL,
+            `nco_impuesto`                                  $var_decimal DEFAULT NULL,
+            `tasa_cambio`                                   $var_decimal DEFAULT NULL,
+            `exento`                                        $var_decimal DEFAULT NULL,
+            `exento_bs`                                     $var_decimal DEFAULT NULL,
+            `direccion`                                     VARCHAR(300) DEFAULT NULL,
+            `telefono`                                      VARCHAR(100) DEFAULT NULL,
+            `fact_fiscal`                                   VARCHAR(20) DEFAULT NULL,
+            `empresa`                                       VARCHAR(20) DEFAULT NULL,
+            `sucursal`                                      VARCHAR(20) DEFAULT NULL,
+            `corr_fiscal`                                   VARCHAR(11) DEFAULT NULL,
+            `no_com_ret`                                    VARCHAR(1) DEFAULT NULL,
+            `ret_fac_afec`                                  VARCHAR(1) DEFAULT NULL,
+            `iva_rete`                                      INT(11) DEFAULT NULL,
+            `ciudad_cliente`                                VARCHAR(20) DEFAULT NULL,
+            `ciudad_servicio`                               VARCHAR(20) DEFAULT NULL,
+            `estado`                                        VARCHAR(20) DEFAULT NULL,
+            `status`                                        VARCHAR(50) DEFAULT NULL,
+            `fact_digital`                                  VARCHAR(2) DEFAULT NULL,
+            `id`                                            INT(11) NOT NULL AUTO_INCREMENT,
+            PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=264675 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
+
+        $conn->query($create_RepLibroVentasResumen_sql);
+        echo "✅ Tabla 'RepLibroVentasResumen' creada correctamente....";
+        echo '';
+    } else {
+        $alter_RepLibroVentasResumen_sqls = [
+            // --- Reconfirmación of column definitions for YourTableName ---
+            "MODIFY COLUMN `tipo_doc`                       VARCHAR(3) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `id_ventas`                      INT(11) DEFAULT NULL",
+            "MODIFY COLUMN `fecha_emision`                  DATE DEFAULT NULL",
+            "MODIFY COLUMN `nro_factura`                    VARCHAR(11) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `nro_control`                    VARCHAR(10) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `cod_cliente`                    VARCHAR(40) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `nombre_cliente`                 VARCHAR(200) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `no_no_debito`                   VARCHAR(1) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `no_no_credito`                  VARCHAR(10) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `no_fac_afec`                    VARCHAR(11) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `ventas_c_iva`                   $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `ventas_no_gra`                  VARCHAR(1) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `co_base_imponible_bs`           $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `co_tasa_iva_bs`                 $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `co_impuesto_bs`                 $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `nco_base_imponible_bs`          $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `nco_tasa_iva_bs`                $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `nco_impuesto_bs`                $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `co_base_imponible`              $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `co_impuesto`                    $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `nco_base_imponible`             $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `nco_impuesto`                   $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `tasa_cambio`                    $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `exento`                         $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `exento_bs`                      $var_decimal DEFAULT NULL",
+            "MODIFY COLUMN `direccion`                      VARCHAR(300) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `telefono`                       VARCHAR(100) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `fact_fiscal`                    VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `empresa`                        VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `sucursal`                       VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `corr_fiscal`                    VARCHAR(11) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `no_com_ret`                     VARCHAR(1) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `ret_fac_afec`                   VARCHAR(1) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `iva_rete`                       INT(11) DEFAULT NULL",
+            "MODIFY COLUMN `ciudad_cliente`                 VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `ciudad_servicio`                VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `estado`                         VARCHAR(20) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `status`                         VARCHAR(50) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `fact_digital`                   VARCHAR(2) DEFAULT NULL COLLATE utf8mb4_general_ci",
+            "MODIFY COLUMN `id`                             INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY"
+        ];
+
+        foreach ($alter_RepLibroVentasCiudadesResumen_sqls as $sql) {
+            $conn->query("ALTER TABLE RepLibroVentasResumen $sql");
+        }
+
+        echo "✅ Estructura de la tabla 'RepLibroVentasResumen' actualizada exitosamente...";
+        echo '';
+    }
 
     echo "✅ ✅ ESTRUCTURA BD PROCESADA CORRECTAMENTE ✅ ✅...";
     echo '';
