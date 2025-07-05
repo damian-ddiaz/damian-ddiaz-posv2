@@ -27,12 +27,13 @@ try {
     $var_decimal = "DECIMAL(15,6)";
 
     // --- VENTAS RESUMEN ---
-    $result = $conn->query("SHOW TABLES LIKE 'ventas_resumen'");
+    $nombre_tabla = 'ventas_resumen';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'ventas_resumen' no existe.  Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe.  Creando...";
         echo '';
         $create_ventas_resumen_sql = "
-                CREATE TABLE `ventas_resumen` (
+                CREATE TABLE `$nombre_tabla` (
             `id_ventas`                                     INT(20) NOT NULL AUTO_INCREMENT,
             `nro_factura`                                   VARCHAR(11) NOT NULL,
             `corr_fiscal`                                   VARCHAR(11) NOT NULL,
@@ -112,10 +113,10 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=704470 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         ";
         $conn->query($create_ventas_resumen_sql);
-        echo "✅ Tabla 'ventas_resumen' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
-        echo "🛠 La tabla 'ventas_resumen' ya existe. Aplicando modificaciones...";
+        echo "🛠 La tabla '$nombre_tabla' ya existe. Aplicando modificaciones...";
         echo '';
         $alter_ventas_resumen_sqls = [
             // --- Reconfirmación de definiciones para todas las demás columnas ---
@@ -178,10 +179,10 @@ try {
         ];
 
         foreach ($alter_ventas_resumen_sqls as $sql) {
-            $conn->query("ALTER TABLE ventas_resumen $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
 
-        echo "✅ Estructura de la tabla 'ventas_resumen' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';  
     }
 
@@ -191,11 +192,11 @@ try {
     $conn->query($drop_trigger_ventas_resumen_insert_fecha_factura_sql);
 
     $create_trigger_ventas_resumen_insert_fecha_factura_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `insert_fecha_factura` 
-    BEFORE INSERT ON `ventas_resumen` 
+    BEFORE INSERT ON `$nombre_tabla` 
     FOR EACH ROW SET NEW.fecha_factura_generada = NEW.fecha_emision";
             
     $conn->query($create_trigger_ventas_resumen_insert_fecha_factura_sql);
-    echo "✅ Trigger 'insert_fecha_factura' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'insert_fecha_factura' creado correctamente....";
     echo '';
 
     // fecha_emision_insert_vent
@@ -209,7 +210,7 @@ try {
     END IF";
             
     $conn->query($create_trigger_fecha_emision_insert_vent_sql);
-    echo "✅ Trigger 'fecha_emision_insert_vent' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'fecha_emision_insert_vent' creado correctamente....";
     echo '';
 
     // fecha_emis_no_mayor
@@ -225,7 +226,7 @@ try {
     END";
             
     $conn->query($create_trigger_fecha_emis_no_mayor_sql);
-    echo "✅ Trigger 'fecha_emis_no_mayor' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'fecha_emis_no_mayor' creado correctamente....";
     echo '';
 
     // fecha_emision_no_mayor_edit
@@ -245,7 +246,7 @@ try {
     END";
             
     $conn->query($create_trigger_fecha_emision_no_mayor_edit_sql);
-    echo "✅ Trigger 'fecha_emision_no_mayor_edit' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'fecha_emision_no_mayor_edit' creado correctamente....";
     echo '';
 
     // Actualizar_tasa_cxc
@@ -253,7 +254,7 @@ try {
     $conn->query($drop_trigger_Actualizar_tasa_cxc_sql);
 
     $create_trigger_Actualizar_tasa_cxc_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `Actualizar_tasa_cxc` 
-    BEFORE INSERT ON `ventas_resumen` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF DATE_FORMAT(NEW.fecha_emision, '%Y-%m-%d') > CURDATE() THEN
         SIGNAL SQLSTATE '45000'
     SET MESSAGE_TEXT = 'La fecha de emisión no puede ser mayor a la fecha actual.';
@@ -261,7 +262,7 @@ try {
     END";
     
     $conn->query($create_trigger_Actualizar_tasa_cxc_sql);
-    echo "✅ Trigger 'Actualizar_tasa_cxc' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'Actualizar_tasa_cxc' creado correctamente....";
     echo '';
 
     // update_cola_tareas_recalcular_fact
@@ -269,7 +270,7 @@ try {
     $conn->query($drop_trigger_update_cola_tareas_recalcular_fact_sql);
 
     $create_trigger_update_cola_tareas_recalcular_fact_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `update_cola_tareas_recalcular_fact` 
-    AFTER UPDATE ON `ventas_resumen` FOR EACH ROW BEGIN
+    AFTER UPDATE ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF NEW.status = 'FACTURADO' OR NEW.status = 'ANULADO' OR OLD.saldo <> NEW.saldo THEN
         INSERT INTO cola_tareas (tipo, id_cliente, status, fecha, fecha_culminado, empresa, sucursal, usuario)
         VALUES ('recalcular_saldo',new.id_cliente, 'PENDIENTE', now(), null, new.empresa, new.sucursal,new.usuario);
@@ -277,7 +278,7 @@ try {
     END";
         
     $conn->query($create_trigger_update_cola_tareas_recalcular_fact_sql);
-    echo "✅ Trigger 'update_cola_tareas_recalcular_fact' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'update_cola_tareas_recalcular_fact' creado correctamente....";
     echo '';
 
     // anular_transaccion
@@ -285,7 +286,7 @@ try {
     $conn->query($drop_trigger_anular_transaccion_sql);
 
     $create_trigger_anular_transaccion_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `anular_transaccion` 
-    AFTER UPDATE ON `ventas_resumen` FOR EACH ROW BEGIN
+    AFTER UPDATE ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF NEW.status = 'ANULADO'  THEN
             UPDATE ventas_transacciones_detalles SET status = 'ANULADO' WHERE id_ventas_transacciones = OLD.id_ventas;
             UPDATE ventas_detalles SET status = 'ANULADO' WHERE id_detalle = OLD.id_ventas;
@@ -299,12 +300,13 @@ try {
 
 
     // --- VENTAS  DETALLES ---
-   $result = $conn->query("SHOW TABLES LIKE 'ventas_detalles'");
+   $nombre_tabla = 'ventas_detalles';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'ventas_detalles' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_ventas_detalles_sql = "
-                CREATE TABLE `ventas_detalles` (
+                CREATE TABLE `$nombre_tabla` (
             `id_detalle`                                    INT(11) NOT NULL,
             `iten`                                          INT(11) NOT NULL AUTO_INCREMENT,
             `nro_factura`                                   VARCHAR(10) NOT NULL,
@@ -343,10 +345,10 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=665942 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
         ";
         $conn->query($create_ventas_detalles_sql);
-        echo "✅ Tabla 'ventas_detalles' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
-        echo "🛠 La tabla 'ventas_detalles' ya existe. Aplicando modificaciones...";
+        echo "🛠 La tabla '$nombre_tabla' ya existe. Aplicando modificaciones...";
         echo '';
 
         $alter_ventas_detalles_sqls = [
@@ -384,19 +386,20 @@ try {
         ];
 
         foreach ($alter_ventas_detalles_sqls as $sql) {
-            $conn->query("ALTER TABLE ventas_detalles $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'ventas_detalles' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
 // --- VENTAS TRANSACIONES DETALLES ---
-   $result = $conn->query("SHOW TABLES LIKE 'ventas_transacciones_detalles'");
+   $nombre_tabla = 'ventas_transacciones_detalles';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'ventas_transacciones_detalles' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_ventas_transacciones_detalles_sql = "
-                CREATE TABLE `ventas_transacciones_detalles` (
+                CREATE TABLE `$nombre_tabla` (
             `id_ventas_transacciones_detalles`              INT(11) NOT NULL AUTO_INCREMENT,
             `id_ventas_transacciones`                       INT(11) DEFAULT NULL,
             `id_conciliacion`                               INT(11) DEFAULT NULL,
@@ -451,7 +454,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=1165413 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_ventas_transacciones_detalles_sql);
-        echo "✅ Tabla 'ventas_transacciones_detalles' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_ventas_transacciones_detalles_sqls = [
@@ -495,9 +498,9 @@ try {
             "MODIFY COLUMN `id_banco`                           INT(11) DEFAULT NULL"
         ];
         foreach ($alter_ventas_transacciones_detalles_sqls as $sql) {
-            $conn->query("ALTER TABLE ventas_transacciones_detalles $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'ventas_transacciones_detalles' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
@@ -506,7 +509,8 @@ try {
     $drop_trigger_validacion_referencias_sql = "DROP TRIGGER IF EXISTS `validacion_referencias`";
     $conn->query($drop_trigger_validacion_referencias_sql);
 
-    $create_trigger_validacion_referencias_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `validacion_referencias` BEFORE INSERT ON `ventas_transacciones_detalles` FOR EACH ROW BEGIN
+    $create_trigger_validacion_referencias_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `validacion_referencias` 
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF BINARY NEW.referencia <> LOWER(NEW.referencia) THEN
         SET NEW.referencia = LOWER(NEW.referencia);
             IF NEW.referencia != '0' THEN
@@ -516,7 +520,7 @@ try {
     END";
             
     $conn->query($create_trigger_validacion_referencias_sql);
-    echo "✅ Trigger 'validacion_referencias' creado correctamente....";
+    echo "✅ $nombre_tabla -Trigger 'validacion_referencias' creado correctamente....";
     echo '';
 
     // validar_fecha_aprobacion
@@ -524,7 +528,7 @@ try {
     $conn->query($drop_trigger_validar_fecha_aprobacion_sql);
 
     $create_trigger_validar_fecha_aprobacion_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `validar_fecha_aprobacion` 
-    BEFORE INSERT ON `ventas_transacciones_detalles` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF BINARY NEW.referencia <> LOWER(NEW.referencia) THEN
         SET NEW.referencia = LOWER(NEW.referencia);
             IF NEW.referencia != '0' THEN
@@ -534,7 +538,7 @@ try {
     END";
             
     $conn->query($create_trigger_validar_fecha_aprobacion_sql);
-    echo "✅ Trigger 'validar_fecha_aprobacion' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'validar_fecha_aprobacion' creado correctamente....";
     echo '';
 
     // insertar_id_banco
@@ -542,7 +546,7 @@ try {
     $conn->query($drop_trigger_insertar_id_banco_sql);
 
     $create_trigger_insertar_id_banco_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `insertar_id_banco` 
-    BEFORE INSERT ON `ventas_transacciones_detalles` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF BINARY NEW.referencia <> LOWER(NEW.referencia) THEN
         SET NEW.referencia = LOWER(NEW.referencia);
             IF NEW.referencia != '0' THEN
@@ -552,7 +556,7 @@ try {
     END";
             
     $conn->query($create_trigger_insertar_id_banco_sql);
-    echo "✅ Trigger 'insertar_id_banco' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'insertar_id_banco' creado correctamente....";
     echo '';
 
     // validar_referencia_forma_pago
@@ -560,23 +564,23 @@ try {
     $conn->query($drop_trigger_validar_referencia_forma_pago_sql);
 
     $create_trigger_validar_referencia_forma_pago_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `validar_referencia_forma_pago` 
-    BEFORE INSERT ON `ventas_transacciones_detalles` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     DECLARE existe INT;
     SELECT COUNT(*) INTO existe
-    FROM ventas_transacciones_detalles
+    FROM $nombre_tabla
     WHERE referencia = NEW.referencia AND NEW.sucursal = sucursal AND forma_pago = NEW.forma_pago AND 
     empresa = NEW.empresa AND NEW.referencia <> '' AND (status = 'FACTURADO' OR status = 'EN ESPERA') AND NEW.monto = monto;
 
     IF existe > 0 THEN
     SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Ya existe una fila en la tabla ventas_transacciones_detalles con la misma combinación de valores en las
+    SET MESSAGE_TEXT = 'Ya existe una fila en la tabla $nombre_tabla con la misma combinación de valores en las
      columnas referencia y forma_pago.';
     END IF;
 
     END";
             
     $conn->query($create_trigger_validar_referencia_forma_pago_sql);
-    echo "✅ Trigger 'validar_referencia_forma_pago' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'validar_referencia_forma_pago' creado correctamente....";
     echo '';
     
     // corr_monto_abonado
@@ -584,31 +588,188 @@ try {
     $conn->query($drop_trigger_corr_monto_abonado_sql);
 
     $create_trigger_corr_monto_abonado_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `corr_monto_abonado` 
-    BEFORE INSERT ON `ventas_transacciones_detalles` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
 	IF NEW.monto_abonado > NEW.monto THEN 
 		SET NEW.monto_abonado = NEW.monto;
 	END IF;
     END";
             
     $conn->query($create_trigger_corr_monto_abonado_sql);
-    echo "✅ Trigger 'corr_monto_abonado' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'corr_monto_abonado' creado correctamente....";
     echo '';
-/*
+
+
     // monto_cero_insert
-    $drop_trigger_monto_cero_insert_sql = "DROP TRIGGER IF EXISTS `monto_cero_insertmonto_cero_insert`";
+    $drop_trigger_monto_cero_insert_sql = "DROP TRIGGER IF EXISTS `monto_cero_insert`";
     $conn->query($drop_trigger_monto_cero_insert_sql);
 
     $create_trigger_monto_cero_insert_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `webservices`.`monto_cero_insert` 
-    BEFORE INSERT ON `ventas_transacciones_detalles` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     IF NEW.monto < 0.01  AND NEW.monto_bs < 0.01 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El monto no puede ser menor  a 0.01';
     END IF;
     END";
-    
+            
     $conn->query($create_trigger_monto_cero_insert_sql);
-    echo "✅ Trigger 'monto_cero_insert' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'monto_cero_insert' creado correctamente....";
     echo '';
-*/
+
+    // sincronizar_fecha_documento
+    $drop_trigger_sincronizar_fecha_documento_sql = "DROP TRIGGER IF EXISTS `sincronizar_fecha_documento`";
+    $conn->query($drop_trigger_sincronizar_fecha_documento_sql);
+
+    $create_trigger_sincronizar_fecha_documento_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `sincronizar_fecha_documento` 
+    BEFORE UPDATE ON `$nombre_tabla` FOR EACH ROW BEGIN
+	UPDATE cxc_documentos SET fecha_emision = NEW.fecha_transaccion WHERE id_cxc_documentos = OLD.id_cxc_documento AND tipo_documento = 'ADEL';
+    END";
+            
+    $conn->query($create_trigger_sincronizar_fecha_documento_sql);
+    echo "✅ $nombre_tabla - Trigger 'sincronizar_fecha_documento' creado correctamente....";
+    echo '';
+
+   // monto_cero_udt
+    $drop_trigger_monto_cero_udt_sql = "DROP TRIGGER IF EXISTS `monto_cero_udt`";
+    $conn->query($drop_trigger_monto_cero_udt_sql);
+
+    $create_trigger_monto_cero_udt_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `monto_cero_udt` 
+    BEFORE UPDATE ON `$nombre_tabla` FOR EACH ROW BEGIN
+    /*IF NEW.monto < 0.01   AND NEW.monto_bs < 0.01 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El monto no puede ser menor  a 0.01';
+    END IF;*/
+    END";
+            
+    $conn->query($create_trigger_monto_cero_udt_sql);
+    echo "✅ $nombre_tabla - Trigger 'monto_cero_udt' creado correctamente....";
+    echo '';
+
+   // insert_cola_transacciones_banco_venta_insert
+    $drop_trigger_insert_cola_transacciones_banco_venta_insert_sql = "DROP TRIGGER IF EXISTS `insert_cola_transacciones_banco_venta_insert`";
+    $conn->query($drop_trigger_insert_cola_transacciones_banco_venta_insert_sql);
+
+    $create_trigger_insert_cola_transacciones_banco_venta_insert_sql = "CREATE DEFINER=`scryptcase`@`%` 
+    TRIGGER `insert_cola_transacciones_banco_venta_insert` AFTER INSERT ON `$nombre_tabla` 
+    FOR EACH ROW BEGIN
+        IF NEW.status = 'FACTURADO' AND NEW.tipo_pago <> 'RT' THEN 
+            INSERT INTO cola_transacciones_bancos (
+                id_relacion,
+                origen,
+                tipo,
+                id_banco,
+                monto,
+                monto_bs,
+                tasa_cambio,
+                empresa,
+                sucursal,
+                status,
+                mensaje,
+                accion,
+                fecha_transaccion,
+                fecha_insertado
+            ) VALUES (
+                NEW.id_ventas_transacciones_detalles, 
+                'VENTAS',
+                'CREDITO',
+                NEW.id_banco,
+                NEW.monto,
+                NEW.monto_bs,
+                NEW.tasa_cambio,
+                NEW.empresa,
+                NEW.sucursal,
+                'PENDIENTE',
+                'Sin Procesar',
+                'INSERCCION',
+                NEW.fecha_transaccion,
+                CURDATE()
+            );
+        END IF;
+    END";
+            
+    $conn->query($create_trigger_insert_cola_transacciones_banco_venta_insert_sql);
+    echo "✅ $nombre_tabla - Trigger 'insert_cola_transacciones_banco_venta_insert' creado correctamente....";
+    echo '';
+
+      // insert_cola_transacciones_banco_venta_update
+    $drop_trigger_insert_insert_cola_transacciones_banco_venta_update_sql = "DROP TRIGGER IF EXISTS `insert_cola_transacciones_banco_venta_update`";
+    $conn->query($drop_trigger_insert_insert_cola_transacciones_banco_venta_update_sql);
+
+    $create_trigger_insert_cola_transacciones_banco_venta_update_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `insert_cola_transacciones_banco_venta_update` 
+    AFTER UPDATE ON `$nombre_tabla` FOR EACH ROW BEGIN
+    -- Insertar registro si el estatus cambia a 'PROCESADO'
+    IF NEW.status = 'FACTURADO' AND OLD.status <> 'FACTURADO' AND NEW.tipo_pago <> 'RT' THEN
+            INSERT INTO cola_transacciones_bancos (
+                id_relacion,
+                origen,
+                tipo,
+                id_banco,
+                monto,
+                monto_bs,
+                tasa_cambio,
+                empresa,
+                sucursal,
+                status,
+                mensaje,
+                accion,
+                fecha_transaccion,
+                fecha_insertado
+            ) VALUES (
+                NEW.id_ventas_transacciones_detalles, 
+                'VENTAS',
+                'CREDITO',
+                NEW.id_banco,
+                NEW.monto,
+                NEW.monto_bs,
+                NEW.tasa_cambio,
+                NEW.empresa,
+                NEW.sucursal,
+                'PENDIENTE',
+                'Sin Procesar',
+                'INSERCCION',
+                NEW.fecha_transaccion,
+                CURDATE()
+            );
+        END IF;
+
+        -- Insertar registro si el estatus cambia a 'ANULADO'
+        IF NEW.status = 'ANULADO' AND OLD.status <> 'ANULADO' AND NEW.tipo_pago <> 'RT' THEN
+            INSERT INTO cola_transacciones_bancos (
+                id_relacion,
+                origen,
+                tipo,
+                id_banco,
+                monto,
+                monto_bs,
+                tasa_cambio,
+                empresa,
+                sucursal,
+                status,
+                mensaje,
+                accion,
+                fecha_transaccion,
+                fecha_insertado
+            ) VALUES (
+                NEW.id_ventas_transacciones_detalles, 
+                'VENTAS',
+                'DEBITO',
+                NEW.id_banco,
+                NEW.monto,
+                NEW.monto_bs,
+                NEW.tasa_cambio,
+                NEW.empresa,
+                NEW.sucursal,
+                'PENDIENTE',
+                'Sin Procesar',
+                'ANULACION',
+                NEW.fecha_transaccion,
+                CURDATE()
+            );
+        END IF;
+    END";
+            
+    $conn->query($create_trigger_insert_cola_transacciones_banco_venta_update_sql);
+    echo "✅ $nombre_tabla - Trigger 'insert_cola_transacciones_banco_venta_update' creado correctamente....";
+    echo '';
+
+
    // --- VENTAS DEVOLUCIONES RESUMEN ---
    $result = $conn->query("SHOW TABLES LIKE 'ventas_devoluciones_resumen'");
     if ($result->num_rows == 0) {
@@ -854,6 +1015,38 @@ try {
         echo "✅ Estructura de la tabla 'cxc_documentos' actualizada exitosamente...";
         echo '';
     }
+
+    // CREANDO TRIGGERS - CXC DOCUMENTOS
+    // id_ventas_insrt
+    $drop_trigger_id_ventas_insrt_sql = "DROP TRIGGER IF EXISTS `id_ventas_insrt`";
+    $conn->query($drop_trigger_id_ventas_insrt_sql);
+
+    $create_trigger_id_ventas_insrt_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `id_ventas_insrt` 
+    BEFORE INSERT ON `cxc_documentos` FOR EACH ROW BEGIN
+    DECLARE existe INT;
+    IF NEW.tipo_documento = 'FACTURV' THEN
+        SELECT COUNT(*) INTO existe
+        FROM cxc_documentos
+        WHERE id_ventas = NEW.id_ventas AND tipo_documento = 'FACTURV' AND id_ventas > 0;
+
+        IF existe > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ya existe la factura en documentos';
+        END IF;
+    END IF;
+    END";
+            
+    $conn->query($create_trigger_id_ventas_insrt_sql);
+    echo "✅ Trigger 'id_ventas_insrt' creado correctamente....";
+    echo '';
+
+
+
+
+
+
+
+
 
     // --- CXC COBRO RESUMEN ---
    $result = $conn->query("SHOW TABLES LIKE 'cxc_cobro_resumen'");
