@@ -771,12 +771,13 @@ try {
 
 
    // --- VENTAS DEVOLUCIONES RESUMEN ---
-   $result = $conn->query("SHOW TABLES LIKE 'ventas_devoluciones_resumen'");
+   $nombre_tabla = 'ventas_devoluciones_resumen';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'ventas_devoluciones_resumen' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_ventas_devoluciones_resumen_sql = "
-                CREATE TABLE `ventas_devoluciones_resumen` (
+                CREATE TABLE `$nombre_tabla` (
             `id_ventas_devoluciones_resumen`                    INT(11) NOT NULL AUTO_INCREMENT,
             `id_ventas`                                         INT(11) NOT NULL,
             `descripcion`                                       LONGTEXT NOT NULL,
@@ -814,7 +815,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=273 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_ventas_devoluciones_resumen_sql);
-        echo "✅ Tabla 'ventas_devoluciones_resumen' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
 
@@ -852,19 +853,20 @@ try {
             "MODIFY COLUMN `exento`                         VARCHAR(13) DEFAULT NULL COLLATE utf8mb4_general_ci"
         ];
         foreach ($alter_ventas_devoluciones_resumen_sqls as $sql) {
-            $conn->query("ALTER TABLE ventas_devoluciones_resumen $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'ventas_devoluciones_resumen' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
    // --- VENTAS DEVOLUCIONES DETALLES ---
-   $result = $conn->query("SHOW TABLES LIKE 'ventas_devoluciones_detalles'");
+   $nombre_tabla = 'ventas_devoluciones_detalles';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'ventas_devoluciones_detalles' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_ventas_devoluciones_detalles_sql = "
-                CREATE TABLE `ventas_devoluciones_detalles` (
+                CREATE TABLE `$nombre_tabla` (
             `id_ventas_devoluciones_detalles`               INT(11) NOT NULL AUTO_INCREMENT,
             `id_ventas_devoluciones_resumen`                INT(11) NOT NULL,
             `codigo_producto`                               VARCHAR(20) NOT NULL,
@@ -890,7 +892,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=293 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_ventas_devoluciones_detalles_sql);
-        echo "✅ Tabla 'ventas_devoluciones_detalles' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_ventas_devoluciones_detalles_sqls = [
@@ -915,20 +917,21 @@ try {
             "MODIFY COLUMN `ip_estacion`                    VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci"
         ];
         foreach ($alter_ventas_devoluciones_detalles_sqls as $sql) {
-            $conn->query("ALTER TABLE ventas_devoluciones_detalles $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'ventas_devoluciones_detalles' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
 
    // --- CXC DOCUMENTOS ---
+   $nombre_tabla = 'cxc_documentos';
    $result = $conn->query("SHOW TABLES LIKE 'cxc_documentos'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'cxc_documentos' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_cxc_documentos_sql = "
-                CREATE TABLE `cxc_documentos` (
+                CREATE TABLE `$nombre_tabla` (
             `id_cxc_documentos`                             INT(10) NOT NULL AUTO_INCREMENT,
             `id_cliente`                                    INT(11) DEFAULT NULL,
             `tipo_documento`                                VARCHAR(20) NOT NULL,
@@ -978,7 +981,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=1016057 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_cxc_documentos_sql);
-        echo "✅ Tabla 'cxc_documentos' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_cxc_documentos_sqls = [
@@ -1010,9 +1013,9 @@ try {
             "MODIFY COLUMN `id_ventas`                      INT(11) DEFAULT NULL"
         ];
         foreach ($alter_cxc_documentos_sqls as $sql) {
-            $conn->query("ALTER TABLE cxc_documentos $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'cxc_documentos' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
@@ -1022,7 +1025,7 @@ try {
     $conn->query($drop_trigger_id_ventas_insrt_sql);
 
     $create_trigger_id_ventas_insrt_sql = "CREATE DEFINER=`scryptcase`@`%` TRIGGER `id_ventas_insrt` 
-    BEFORE INSERT ON `cxc_documentos` FOR EACH ROW BEGIN
+    BEFORE INSERT ON `$nombre_tabla` FOR EACH ROW BEGIN
     DECLARE existe INT;
     IF NEW.tipo_documento = 'FACTURV' THEN
         SELECT COUNT(*) INTO existe
@@ -1037,24 +1040,18 @@ try {
     END";
             
     $conn->query($create_trigger_id_ventas_insrt_sql);
-    echo "✅ Trigger 'id_ventas_insrt' creado correctamente....";
+    echo "✅ $nombre_tabla - Trigger 'id_ventas_insrt' creado correctamente....";
     echo '';
 
 
-
-
-
-
-
-
-
     // --- CXC COBRO RESUMEN ---
-   $result = $conn->query("SHOW TABLES LIKE 'cxc_cobro_resumen'");
+    $nombre_tabla = 'cxc_cobro_resumen';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'cxc_cobro_resumen' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_cxc_cobro_resumen_sql = "
-                CREATE TABLE `cxc_cobro_resumen` (
+                CREATE TABLE `$nombre_tabla` (
             `id_cxc_cobro_resumen`                          INT(20) NOT NULL AUTO_INCREMENT,
             `numero_documento`                              VARCHAR(50) NOT NULL,
             `cod_cliente`                                   VARCHAR(20) NOT NULL,
@@ -1105,19 +1102,20 @@ try {
         ];
 
         foreach ($alter_cxc_cobro_resumen_sqls as $sql) {
-            $conn->query("ALTER TABLE cxc_cobro_resumen $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'cxc_cobro_resumen' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
    // --- CXC COBRO DETALLES ---
-   $result = $conn->query("SHOW TABLES LIKE 'cxc_cobro_detalles'");
+   $nombre_tabla = 'cxc_cobro_detalles';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'cxc_cobro_detalles' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_cxc_cobro_detalles_sql = "
-                CREATE TABLE `cxc_cobro_detalles` (
+                CREATE TABLE `$nombre_tabla` (
             `id_cxc_cobro_detalles`                         INT(20) NOT NULL AUTO_INCREMENT,
             `id_cxc_cobro_resumen`                          INT(20) NOT NULL,
             `id_cxc_documento`                              INT(20) NOT NULL,
@@ -1144,10 +1142,9 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=3446948 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_cxc_cobro_detalles_sql);
-        echo "✅ Tabla 'cxc_cobro_detalles' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
-    } else {
-        
+    } else {      
         $alter_cxc_cobro_detalles_sqls = [
             // --- Reconfirmación de definiciones para todas las demás columnas ---
             // Incluye CHARSET y COLLATE solo para tipos de cadena (VARCHAR)
@@ -1170,19 +1167,20 @@ try {
         ];
 
         foreach ($alter_cxc_cobro_detalles_sqls as $sql) {
-            $conn->query("ALTER TABLE cxc_cobro_detalles $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
-        echo "✅ Estructura de la tabla 'cxc_cobro_detalles' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
    // --- RepLibroVentas ---
-   $result = $conn->query("SHOW TABLES LIKE 'RepLibroVentas'");
+   $nombre_tabla = 'RepLibroVentas';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'RepLibroVentas' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_RepLibroVentas_sql = "
-                CREATE TABLE `RepLibroVentas` (
+                CREATE TABLE `$nombre_tabla` (
             `tipo_doc`                                      VARCHAR(255) DEFAULT NULL,
             `id_ventas`                                     INT(11) DEFAULT NULL,
             `fecha_emision`                                 DATE DEFAULT NULL,
@@ -1230,7 +1228,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=265667 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_RepLibroVentas_sql);
-        echo "✅ Tabla 'RepLibroVentas' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_replibroventas_sqls = [
@@ -1279,20 +1277,21 @@ try {
             "MODIFY COLUMN `id`                             INT(11) NOT NULL AUTO_INCREMENT"
         ];
         foreach ($alter_replibroventas_sqls as $sql) {
-            $conn->query("ALTER TABLE RepLibroVentas $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
 
-        echo "✅ Estructura de la tabla 'RepLibroVentas' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
   // --- RepLibroVentasCiudadesDetalle ---
-   $result = $conn->query("SHOW TABLES LIKE 'RepLibroVentasCiudadesDetalle'");
+   $nombre_tabla = 'RepLibroVentasCiudadesDetalle';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'RepLibroVentasCiudadesDetalle' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_RepLibroVentasCiudadesDetalle_sql = "
-                CREATE TABLE `RepLibroVentasCiudadesDetalle` (
+                CREATE TABLE `$nombre_tabla` (
             `fecha_emision`                                 DATE DEFAULT NULL,
             `ciudad_cliente`                                VARCHAR(20) DEFAULT NULL,
             `corr_fiscal`                                   VARCHAR(11) DEFAULT NULL,
@@ -1321,7 +1320,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=462920 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_RepLibroVentasCiudadesDetalle_sql);
-        echo "✅ Tabla 'RepLibroVentasCiudadesDetalle' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_RepLibroVentasCiudadesDetalle_sqls = [
@@ -1352,20 +1351,21 @@ try {
         ];
 
         foreach ($alter_RepLibroVentasCiudadesDetalle_sqls as $sql) {
-            $conn->query("ALTER TABLE RepLibroVentasCiudadesDetalle $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
 
-        echo "✅ Estructura de la tabla 'RepLibroVentasCiudadesDetalle' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
   // --- RepLibroVentasCiudadesResumen ---
-   $result = $conn->query("SHOW TABLES LIKE 'RepLibroVentasCiudadesResumen'");
+    $nombre_tabla = 'RepLibroVentasCiudadesResumen';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'RepLibroVentasCiudadesResumen' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_RepLibroVentasCiudadesResumen_sql = "
-                CREATE TABLE `RepLibroVentasCiudadesResumen` (
+                CREATE TABLE `$nombre_tabla` (
             `fecha_emision`                                 date DEFAULT NULL,
             `ciudad_cliente`                                VARCHAR(20) DEFAULT NULL,
             `total_fact_bsd`                                $var_decimal DEFAULT NULL,
@@ -1389,7 +1389,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=462917 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_RepLibroVentasCiudadesResumen_sql);
-        echo "✅ Tabla 'RepLibroVentasCiudadesResumen' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_RepLibroVentasCiudadesResumen_sqls = [
@@ -1416,20 +1416,21 @@ try {
         ];
 
         foreach ($alter_RepLibroVentasCiudadesResumen_sqls as $sql) {
-            $conn->query("ALTER TABLE RepLibroVentasCiudadesResumen $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
 
-        echo "✅ Estructura de la tabla 'RepLibroVentasCiudadesResumen' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
    // --- RepLibroVentasResumen ---
-   $result = $conn->query("SHOW TABLES LIKE 'RepLibroVentasResumen'");
+   $nombre_tabla = 'RepLibroVentasResumen';
+   $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
     if ($result->num_rows == 0) {
-        echo "🆕 Tabla 'RepLibroVentasResumen' no existe. Creando...";
+        echo "🆕 Tabla '$nombre_tabla' no existe. Creando...";
         echo '';
         $create_RepLibroVentasResumen_sql = "
-                CREATE TABLE `RepLibroVentasResumen` (
+                CREATE TABLE `$nombre_tabla` (
             `tipo_doc`                                      VARCHAR(3) DEFAULT NULL,
             `id_ventas`                                     INT(11) DEFAULT NULL,
             `fecha_emision`                                 date DEFAULT NULL,
@@ -1474,7 +1475,7 @@ try {
             ) ENGINE=InnoDB AUTO_INCREMENT=264675 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
 
         $conn->query($create_RepLibroVentasResumen_sql);
-        echo "✅ Tabla 'RepLibroVentasResumen' creada correctamente....";
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
         echo '';
     } else {
         $alter_RepLibroVentasResumen_sqls = [
@@ -1522,10 +1523,10 @@ try {
         ];
 
         foreach ($alter_RepLibroVentasResumen_sqls as $sql) {
-            $conn->query("ALTER TABLE RepLibroVentasResumen $sql");
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
         }
 
-        echo "✅ Estructura de la tabla 'RepLibroVentasResumen' actualizada exitosamente...";
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
         echo '';
     }
 
