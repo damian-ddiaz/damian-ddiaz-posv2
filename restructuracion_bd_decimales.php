@@ -26,6 +26,147 @@ try {
 
     $var_decimal = "DECIMAL(15,6)";
 
+     // --- inventario ---
+    $nombre_tabla = 'inventario';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
+    if ($result->num_rows == 0) {
+        echo "🆕 Tabla '$nombre_tabla' no existe.  Creando...";
+        echo '';
+        $create_inventario_sql = "
+                CREATE TABLE `$nombre_tabla` (
+            `codigo_cliente`                                varchar(20) DEFAULT NULL,
+            `id_telecomunicaciones`                         varbinary(50) DEFAULT NULL,
+            `id`                                            int(11) NOT NULL AUTO_INCREMENT,
+            PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        ";
+        $conn->query($create_inventario_sql);
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
+        echo '';
+    } else {
+        echo "🛠 La tabla '$nombre_tabla' ya existe. Aplicando modificaciones...";
+        echo '';
+        $alter_inventario_sqls = [
+            // --- Reconfirmación de definiciones para todas las columnas ---
+            // Incluye CHARSET y COLLATE solo para tipos de cadena (VARCHAR, TEXT, MEDIUMTEXT)
+            "MODIFY COLUMN `codigo_cliente`                 VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL",
+            "MODIFY COLUMN `id_telecomunicaciones`          VARBINARY(50) DEFAULT NULL",
+            "MODIFY COLUMN `id`                             INT(11) NOT NULL AUTO_INCREMENT",
+        ];
+
+        foreach ($alter_inventario_sqls as $sql) {
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
+        }
+
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
+        echo '';  
+    }
+
+     // --- Temporal_cliente ---
+    $nombre_tabla = 'Temporal_cliente';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
+    if ($result->num_rows == 0) {
+        echo "🆕 Tabla '$nombre_tabla' no existe.  Creando...";
+        echo '';
+        $create_Temporal_cliente_sql = "
+                CREATE TABLE `Temporal_cliente` (
+            `codigo_cliente`                                varchar(20) DEFAULT NULL,
+            `id_telecomunicaciones`                         varbinary(50) DEFAULT NULL,
+            `id`                                            int(11) NOT NULL AUTO_INCREMENT,
+            PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        ";
+        $conn->query($create_Temporal_cliente_sql);
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
+        echo '';
+    } else {
+        echo "🛠 La tabla '$nombre_tabla' ya existe. Aplicando modificaciones...";
+        echo '';
+        $alter_Temporal_cliente_sqls = [
+            // Reconfirmación de definiciones para todas las columnas
+            // Se incluye CHARSET y COLLATE solo para tipos de cadena (VARCHAR, TEXT, MEDIUMTEXT)
+            "MODIFY COLUMN `codigo_cliente`                 VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL",
+            "MODIFY COLUMN `id_telecomunicaciones`          VARBINARY(50) DEFAULT NULL",
+            "MODIFY COLUMN `id`                             INT(11) NOT NULL AUTO_INCREMENT",
+        ];
+
+        foreach ($alter_inventario_sqls as $sql) {
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
+        }
+
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
+        echo '';  
+    }
+
+     // --- account ---
+    $nombre_tabla = 'account';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
+    if ($result->num_rows == 0) {
+        echo "🆕 Tabla '$nombre_tabla' no existe.  Creando...";
+        echo '';
+        $create_account_sql = "
+                CREATE TABLE `account` (
+            `accountid`                                     int(11) NOT NULL AUTO_INCREMENT,
+            `accountdescription`                            varchar(100) DEFAULT NULL,
+            PRIMARY KEY (`accountid`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        ";
+        $conn->query($create_account_sql);
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
+        echo '';
+    } else {
+        echo "🛠 La tabla '$nombre_tabla' ya existe. Aplicando modificaciones...";
+        echo '';
+        $alter_account_sqls = [
+            // Reconfirmación de definiciones para todas las columnas
+            // Se incluye CHARSET y COLLATE solo para tipos de cadena (VARCHAR, TEXT, MEDIUMTEXT)
+            "MODIFY COLUMN `accountid`                      INT(11) NOT NULL AUTO_INCREMENT",
+            "MODIFY COLUMN `accountdescription`             VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL",
+        ];
+
+        foreach ($alter_account_sqls as $sql) {
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
+        }
+
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
+        echo '';  
+    }
+
+
+     // --- agenda ---
+    $nombre_tabla = 'agenda';
+    $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
+    if ($result->num_rows == 0) {
+        echo "🆕 Tabla '$nombre_tabla' no existe.  Creando...";
+        echo '';
+        $create_agenda_sql = "
+                CREATE TABLE `$nombre_tabla` (
+            `accountid`                                     int(11) NOT NULL AUTO_INCREMENT,
+            `accountdescription`                            varchar(100) DEFAULT NULL,
+            PRIMARY KEY (`accountid`)
+            ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+        ";
+        $conn->query($create_agenda_sql);
+        echo "✅ Tabla '$nombre_tabla' creada correctamente....";
+        echo '';
+    } else {
+        echo "🛠 La tabla '$nombre_tabla' ya existe. Aplicando modificaciones...";
+        echo '';
+        $alter_agenda_sqls = [
+            // Reconfirmación de definiciones para todas las columnas
+            // Se incluye CHARSET y COLLATE solo para tipos de cadena (VARCHAR, TEXT, MEDIUMTEXT)
+            "MODIFY COLUMN `accountid`                      INT(11) NOT NULL AUTO_INCREMENT",
+            "MODIFY COLUMN `accountdescription`             VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL",
+        ];
+
+        foreach ($alter_agenda_sqls as $sql) {
+            $conn->query("ALTER TABLE $nombre_tabla $sql");
+        }
+
+        echo "✅ Estructura de la tabla '$nombre_tabla' actualizada exitosamente...";
+        echo '';  
+    }
+
     // --- VENTAS RESUMEN ---
     $nombre_tabla = 'ventas_resumen';
     $result = $conn->query("SHOW TABLES LIKE '$nombre_tabla'");
